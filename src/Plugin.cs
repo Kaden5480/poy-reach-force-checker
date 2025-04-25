@@ -72,7 +72,13 @@ namespace ReachForceChecker {
         }
 
         private void CommonAwake() {
+            GameObject gameObject = new GameObject("Reach Force Checker Audio");
+            GameObject.DontDestroyOnLoad(gameObject);
+
             ding = gameObject.AddComponent<AudioSource>();
+            ding.bypassEffects = true;
+            ding.bypassListenerEffects = true;
+            ding.bypassReverbZones = true;
             ding.volume = 0.12f;
         }
 
@@ -100,14 +106,32 @@ namespace ReachForceChecker {
 
     [HarmonyPatch(typeof(Climbing), "AddReachForceL")]
     static class PatchReachForceL {
-        static void Prefix() {
+        static void Prefix(
+            Climbing __instance,
+            bool ___appliedArmForceInDirL
+        ) {
+            if (___appliedArmForceInDirL == true
+                || __instance.fpController.IsGrounded() == true
+            ) {
+                return;
+            }
+
             Plugin.addedForceL = true;
         }
     }
 
     [HarmonyPatch(typeof(Climbing), "AddReachForceR")]
     static class PatchReachForceR {
-        static void Prefix() {
+        static void Prefix(
+            Climbing __instance,
+            bool ___appliedArmForceInDirR
+        ) {
+            if (___appliedArmForceInDirR == true
+                || __instance.fpController.IsGrounded() == true
+            ) {
+                return;
+            }
+
             Plugin.addedForceR = true;
         }
     }
